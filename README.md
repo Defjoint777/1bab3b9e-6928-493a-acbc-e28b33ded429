@@ -1,51 +1,80 @@
 <!---
 {
-  "depends_on": [],
+  "depends_on": ["https://github.com/STEMgraph/279a01d6-7696-46b7-9cb7-2c44773ad06b", "https://github.com/STEMgraph/845d15ed-1fb2-4b2c-8096-732f29e01c93"],
   "author": "Stephan Bökelmann",
-  "first_used": "2025-03-17",
-  "keywords": ["learning", "exercises", "education", "practice"]
+  "first_used": "2025-04-01",
+  "keywords": ["file handling", "fopen", "fclose", "error handling", "C"]
 }
 --->
 
-# Learning Through Exercises
+# Safely Opening and Closing Files in C
 
 ## 1) Introduction
-Learning by doing is one of the most effective methods to acquire new knowledge and skills. Rather than passively consuming information, actively engaging in problem-solving fosters deeper understanding and long-term retention. By working through structured exercises, students can grasp complex concepts in a more intuitive and applicable way. This approach is particularly beneficial in technical fields like programming, mathematics, and engineering.
 
-### 1.1) Further Readings and Other Sources
-- [The Importance of Practice in Learning](https://www.sciencedirect.com/science/article/pii/S036013151300062X)
-- "The Art of Learning" by Josh Waitzkin
-- [How to Learn Effectively: 5 Key Strategies](https://www.edutopia.org/article/5-research-backed-learning-strategies)
+In the [fprintf](https://github.com/STEMgraph/279a01d6-7696-46b7-9cb7-2c44773ad06b) and [fscanf](https://github.com/STEMgraph/845d15ed-1fb2-4b2c-8096-732f29e01c93) exercises, we started to work with files.
+Opening and closing files might seem trivial, but doing so **safely** is crucial for robust C programming. 
+
+When you call `fopen()`, the system might fail to open the file due to several reasons. Maybe the file doesn't exist (when reading) or the path is invalid. Sometimes you don't have sufficient permissions and sometimes the disk might be full when writing.
+
+If you don't check the return value of `fopen()`, you might pass a `NULL` pointer to other functions like `fscanf` or `fprintf`, which leads to **undefined behavior**. 
+
+Similarly, if you forget to `fclose()` an open file, you might lose unwritten data (write buffers not flushed). 
+If you are working with a lot of files, it also might happen, that you exhaust the available amount of file descriptors from your operating system. Or you end up corrupting the file you have been working on, especially in append mode.
+
+Here’s an example of how to **safely open and close** a file in C:
+
+```c
+#include <stdio.h>
+
+int main(void) {
+    FILE *file = fopen("./data.txt", "r");
+    if (!file) {
+        perror("Error opening file");
+        return 1;
+    }
+
+    // File operations go here
+
+    if (fclose(file) != 0) {
+        perror("Error closing file");
+        return 1;
+    }
+
+    return 0;
+}
+```
+
+Take note, that after the `*file` identifier has been assigned with the value of `fopen()`s return, it is checked whether it's `NULL`.
+On the other hand, after closing the file it is checked, whether `fclose(file)` returns a `0`. 
+Even though, there is nothing left to do, if closing fails, at least the user of the program will get some diagnostics!
 
 ## 2) Tasks
-1. **Write a Summary**: Summarize the concept of "learning by doing" in 3-5 sentences.
-2. **Example Identification**: List three examples from your own experience where learning through exercises helped you understand a topic better.
-3. **Create an Exercise**: Design a simple exercise for a topic of your choice that someone else could use to practice.
-4. **Follow an Exercise**: Find an online tutorial that includes exercises and complete at least two of them.
-5. **Modify an Existing Exercise**: Take a basic problem from a textbook or online course and modify it to make it slightly more challenging.
-6. **Pair Learning**: Explain a concept to a partner and guide them through an exercise without giving direct answers.
-7. **Review Mistakes**: Look at an exercise you've previously completed incorrectly. Identify why the mistake happened and how to prevent it in the future.
-8. **Time Challenge**: Set a timer for 10 minutes and try to solve as many simple exercises as possible on a given topic.
-9. **Self-Assessment**: Create a checklist to evaluate your own performance in completing exercises effectively.
-10. **Reflect on Progress**: Write a short paragraph on how this structured approach to exercises has influenced your learning.
 
-<details>
-  <summary>Tip for Task 5</summary>
-  Try making small adjustments first, such as increasing the difficulty slightly or adding an extra constraint.
-</details>
+1. **Open & Close**: Write a program that opens a file from your filesystem in read mode and immediately closes it.
+2. **File Not Found**: Try opening a non-existent file. Check for errors using `if (!file)` and print a helpful message.
+3. **Write File**: Open a file in write mode and write `"hello"` into it. Close it safely.
+4. **Double Close**: Call `fclose()` twice in your program and observe the behavior.
+
 
 ## 3) Questions
-1. What are the main benefits of learning through exercises compared to passive learning?
-2. How do exercises improve long-term retention?
-3. Can you think of a subject where learning through exercises might be less effective? Why?
-4. What role does feedback play in learning through exercises?
-5. How can self-designed exercises improve understanding?
-6. Why is it beneficial to review past mistakes in exercises?
-7. How does explaining a concept to someone else reinforce your own understanding?
-8. What strategies can you use to stay motivated when practicing with exercises?
-9. How can timed challenges contribute to learning efficiency?
-10. How do exercises help bridge the gap between theory and practical application?
+
+1. What happens if you try to `fscanf()` or `fprintf()` using a NULL file pointer?
+
+2. Why is it important to always check the return value of `fopen()`?
+
+3. What can go wrong if you forget to `fclose()` a file?
+
+4. What is `perror()` and how does it help during file operations?
+
+<details>
+  <summary>Unknown Functions</summary>
+
+  Whenever you are confronted with unknown C-functions. Always check [cppreference.com](https://en.cppreference.com/w/c) for a comprehensive explaination.
+  
+</details>
+
+5. What are some scenarios in which `fopen()` might fail?
 
 ## 4) Advice
-Practice consistently and seek out diverse exercises that challenge different aspects of a topic. Combine exercises with reflection and feedback to maximize your learning efficiency. Don't hesitate to adapt exercises to fit your own needs and ensure that you're actively engaging with the material, rather than just going through the motions.
 
+Always treat file access as a potentially unreliable operation. File systems are shared resources and prone to failure. Always check if `fopen()` succeeds before continuing. Always close your files — even if your program is about to end. And always use `perror()` to understand what went wrong when something fails.
