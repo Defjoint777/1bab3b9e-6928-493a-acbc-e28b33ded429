@@ -52,20 +52,22 @@ Even though, there is nothing left to do, if closing fails, at least the user of
 
 1. **Open & Close**: Write a program that opens a file from your filesystem in read mode and immediately closes it.
 2. **File Not Found**: Try opening a non-existent file. Check for errors using `if (!file)` and print a helpful message.
-3. **Write File**: Open a file in write mode and write `"hello"` into it. Close it safely.
+3. **Write File**: Open a file in write mode and write `"hell::o"` into it. Close it safely.
 4. **Double Close**: Call `fclose()` twice in your program and observe the behavior.
 
 
 ## 3) Questions
 
 1. What happens if you try to `fscanf()` or `fprintf()` using a NULL file pointer?
-
+ if we trying to use fscanf or fprintf together with file whose value is NULL == undefined behavior.
 2. Why is it important to always check the return value of `fopen()`?
+   Important to be sure the stream is opened correctly, in case not with return value we can let the user know that openning is failed.
 
-3. What can go wrong if you forget to `fclose()` a file?
+4. What can go wrong if you forget to `fclose()` a file?
+   if u forget to fclose() file it can create situation where the data from buffer wouldnt be fflushed() it means ur work gonna be lost.
 
-4. What is `perror()` and how does it help during file operations?
-
+6. What is `perror()` and how does it help during file operations?
+perror is implemented function in standart c bibliothek, used to create and print own Errors.
 <details>
   <summary>Unknown Functions</summary>
 
@@ -74,6 +76,7 @@ Even though, there is nothing left to do, if closing fails, at least the user of
 </details>
 
 5. What are some scenarios in which `fopen()` might fail?
+   if the file which fopen want to open not exist.
 
 ## 4) Advice
 
